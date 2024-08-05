@@ -1,6 +1,6 @@
 "use client";
 import { Canvas, Circle, Line } from "fabric";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, MouseEvent } from "react";
 
 const PAGE_SIZE = 100;
 
@@ -74,19 +74,20 @@ export default function SimilarityMap() {
         selectable: false,
         hasControls: false,
         hoverCursor: "pointer",
-        id: song["ISRC"],
-        data: song,
-      });
+      }) as Circle & { data: any };
+
+      circle.data = song;
 
       circle.on("mouseover", (e) => {
-        const target = e.target as Circle;
+        const target = e.target as Circle & { data: any };
         if (target) {
-          const song = target.data as any;
+          const song = target.data;
+          const pointer = fabricCanvas.getPointer(e.e);
           setHoveredSong(`${song["Track"]} by ${song["Artist"]}`);
           setTooltipStyle({
             position: "absolute",
-            left: e.e.clientX + 10,
-            top: e.e.clientY + 10,
+            left: pointer.x + 10,
+            top: pointer.y + 10,
             backgroundColor: "white",
             border: "1px solid black",
             padding: "5px",
@@ -144,7 +145,6 @@ export default function SimilarityMap() {
       fabricCanvas.dispose();
     };
   }, [songsData]);
-
   const handleLoadMore = () => {
     setPage((prevPage) => prevPage + 1);
   };
